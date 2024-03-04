@@ -16,28 +16,32 @@
 
 package com.weibo.rill.flow.olympicene.traversal.runners;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.*;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.Option;
-import com.weibo.rill.flow.interfaces.model.strategy.Degrade;
 import com.weibo.rill.flow.interfaces.model.mapping.Mapping;
+import com.weibo.rill.flow.interfaces.model.strategy.Degrade;
 import com.weibo.rill.flow.interfaces.model.strategy.Progress;
+import com.weibo.rill.flow.interfaces.model.task.*;
 import com.weibo.rill.flow.olympicene.core.helper.DAGWalkHelper;
 import com.weibo.rill.flow.olympicene.core.lock.LockerKey;
 import com.weibo.rill.flow.olympicene.core.model.NotifyInfo;
 import com.weibo.rill.flow.olympicene.core.model.dag.DAGInfo;
+import com.weibo.rill.flow.olympicene.core.model.task.ExecutionResult;
 import com.weibo.rill.flow.olympicene.core.model.task.ReturnTask;
+import com.weibo.rill.flow.olympicene.core.model.task.TaskCategory;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGContextStorage;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGInfoStorage;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGStorageProcedure;
 import com.weibo.rill.flow.olympicene.core.switcher.SwitcherManager;
+import com.weibo.rill.flow.olympicene.storage.redis.lock.ResourceLoader;
 import com.weibo.rill.flow.olympicene.traversal.constant.TraversalErrorCode;
 import com.weibo.rill.flow.olympicene.traversal.exception.DAGTraversalException;
 import com.weibo.rill.flow.olympicene.traversal.helper.ContextHelper;
-import com.weibo.rill.flow.olympicene.core.model.task.ExecutionResult;
 import com.weibo.rill.flow.olympicene.traversal.mappings.InputOutputMapping;
-import com.weibo.rill.flow.interfaces.model.task.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
@@ -69,6 +73,27 @@ public abstract class AbstractTaskRunner implements TaskRunner {
         this.dagContextStorage = dagContextStorage;
         this.dagStorageProcedure = dagStorageProcedure;
         this.switcherManager = switcherManager;
+    }
+
+    public String getIcon() {
+        return "";
+    }
+
+    public JSONObject getFields() {
+        TaskCategory category = getCategory();
+        try {
+            String config = ResourceLoader.loadResourceAsText("metadata/fields/" + category.getValue() + ".json");
+            return JSON.parseObject(config);
+        } catch (Exception e) {
+            log.warn("get fields error, category: {}", category.getValue(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    public abstract TaskCategory getCategory();
+
+    public boolean isEnable() {
+        return true;
     }
 
     protected abstract ExecutionResult doRun(String executionId, TaskInfo taskInfo, Map<String, Object> input);
@@ -430,16 +455,18 @@ public abstract class AbstractTaskRunner implements TaskRunner {
         }
     }
 
+    @SuppressWarnings("unchecked")
     protected boolean conditionsAllMatch(List<String> conditions, Map<String, Object> valueMap, String mapType) {
         return conditions.stream()
                 .map(condition -> JsonPath.using(valuePathConf).parse(ImmutableMap.of(mapType, valueMap)).read(condition))
-                .allMatch(it -> CollectionUtils.isNotEmpty((List) it));
+                .allMatch(it -> CollectionUtils.isNotEmpty((List<Object>) it));
     }
 
+    @SuppressWarnings("unchecked")
     protected boolean conditionsAnyMatch(List<String> conditions, Map<String, Object> valueMap, String mapType) {
         return conditions.stream()
                 .map(condition -> JsonPath.using(valuePathConf).parse(ImmutableMap.of(mapType, valueMap)).read(condition))
-                .anyMatch(it -> CollectionUtils.isNotEmpty((List) it));
+                .anyMatch(it -> CollectionUtils.isNotEmpty((List<Object>) it));
     }
 
     protected void skipFollowingTasks(String executionId, TaskInfo taskInfo, Set<TaskInfo> skippedTasks) {

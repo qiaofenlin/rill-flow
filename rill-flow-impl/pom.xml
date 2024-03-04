@@ -19,7 +19,7 @@
     <parent>
         <artifactId>rill-flow</artifactId>
         <groupId>com.weibo</groupId>
-        <version>0.1.5-SNAPSHOT</version>
+        <version>0.1.7-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,8 +35,16 @@
             <artifactId>rill-flow-service</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.weibo</groupId>
+            <artifactId>rill-flow-task-template</artifactId>
+        </dependency>
+        <dependency>
             <groupId>redis.clients</groupId>
             <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.mchange</groupId>
+            <artifactId>c3p0</artifactId>
         </dependency>
     </dependencies>
     <build>

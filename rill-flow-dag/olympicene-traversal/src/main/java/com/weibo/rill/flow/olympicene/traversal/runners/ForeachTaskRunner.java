@@ -21,6 +21,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.weibo.rill.flow.interfaces.model.mapping.Mapping;
+import com.weibo.rill.flow.interfaces.model.task.BaseTask;
+import com.weibo.rill.flow.interfaces.model.task.TaskInfo;
+import com.weibo.rill.flow.interfaces.model.task.TaskInvokeMsg;
+import com.weibo.rill.flow.interfaces.model.task.TaskStatus;
 import com.weibo.rill.flow.olympicene.core.helper.DAGWalkHelper;
 import com.weibo.rill.flow.olympicene.core.helper.TaskInfoMaker;
 import com.weibo.rill.flow.olympicene.core.model.NotifyInfo;
@@ -28,6 +32,7 @@ import com.weibo.rill.flow.olympicene.core.model.mapping.IterationMapping;
 import com.weibo.rill.flow.olympicene.core.model.strategy.Synchronization;
 import com.weibo.rill.flow.olympicene.core.model.task.ExecutionResult;
 import com.weibo.rill.flow.olympicene.core.model.task.ForeachTask;
+import com.weibo.rill.flow.olympicene.core.model.task.TaskCategory;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGContextStorage;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGInfoStorage;
 import com.weibo.rill.flow.olympicene.core.runtime.DAGStorageProcedure;
@@ -35,7 +40,6 @@ import com.weibo.rill.flow.olympicene.core.switcher.SwitcherManager;
 import com.weibo.rill.flow.olympicene.traversal.helper.Stasher;
 import com.weibo.rill.flow.olympicene.traversal.mappings.InputOutputMapping;
 import com.weibo.rill.flow.olympicene.traversal.mappings.JSONPath;
-import com.weibo.rill.flow.interfaces.model.task.*;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,6 +66,12 @@ public class ForeachTaskRunner extends AbstractTaskRunner {
         this.jsonPath = jsonPath;
     }
 
+    @Override
+    public TaskCategory getCategory() {
+        return TaskCategory.FOREACH;
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     protected ExecutionResult doRun(String executionId, TaskInfo taskInfo, Map<String, Object> input) {
         log.info("foreach task begin to run executionId:{}, taskInfoName:{}", executionId, taskInfo.getName());
