@@ -16,6 +16,24 @@ export class GraphCellRenderService {
 
   private static renderNode(node: RillNode, icon: string): {} {
     const label = (node.task.title === undefined || node.task.title === '') ? node.task.name : node.task.title
+    if (node.nodePrototypeId === 'foreach') {
+      console.log('-----------', node);
+      return {
+        shape: 'groupNode',
+        attrs: {
+          text: {
+            text: label,
+          },
+        },
+        data: {
+          parent: true,
+          nodePrototype: node.nodePrototypeId,
+          name: node.task.name,
+          status: node.task.status,
+          nodeId: node.id,
+        },
+      }
+    }
     return getVueNodeConfig({
       size: {
         width: label.length * 20 > 200 ?  label.length * 20 : 200,

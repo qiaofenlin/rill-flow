@@ -81,4 +81,7 @@ export const graphConfig = {
   keyboard: {
     enabled: true,
   },
+  embedding: {
+    enabled: true
+  },
 }

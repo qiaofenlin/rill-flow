@@ -227,6 +227,7 @@
     reset();
 
     nodeRef.value = nodeCell;
+    console.log('==== NODE_CLICK ', nodeCell);
     if (!isOpenModel(getOptEnumByOpt(flowGraphStore.getFlowParams().opt))) {
       open.value = false;
       return;

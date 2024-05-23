@@ -3,7 +3,7 @@ import {FlowGraph} from './flowGraph';
 import {Edge, RillNode} from './node';
 import {DagInfo, DagTask} from './dagInfo';
 import {buildUUID} from '../uitils/uuid';
-import {registerVueNode} from '../components/shape/registerNode';
+import { registerDefaultNode, registerVueNode } from "../components/shape/registerNode";
 import {registerGraphListener} from '../listener/registerGraphListener';
 import {DagBaseInfo} from './dag/dagBaseInfo';
 import {DagExecutionInfo} from './dag/dagExecutionInfo';
@@ -179,7 +179,13 @@ export class X6FlowGraph implements FlowGraph {
     graphConfig['container'] = container;
     this.graph = new Graph(graphConfig);
     registerVueNode();
+    registerDefaultNode(this.graph);
     registerGraphListener(this.graph, opt);
+    // this.graph.addNode({
+    //   x: 200,
+    //   y: 160,
+    //   shape: 'groupNode',
+    // })
     if (opt !== OptEnum.CREATE) {
       this.initGraphCells();
     }
@@ -274,6 +280,7 @@ export class X6FlowGraph implements FlowGraph {
     this.buildNodeTask(node);
     const nodeConfig = GraphCellRenderService.render(node, icon)[0];
     const graphNode = this.createNode(nodeConfig);
+    console.log('addNodeByPrototype',node, nodeConfig, node.task.name);
 
     const data = {
       dnd: {},
